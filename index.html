@@ -266,6 +266,99 @@
         .footer { padding:16px; text-align:center; color:var(--mute); font-size:11px; border-top:1px solid var(--border); }
         .footer span { color:var(--dim); }
 
+        /* ── SETTINGS BUTTON ── */
+        .settings-btn {
+            background:var(--bg3); border:1px solid var(--border);
+            color:var(--dim); width:34px; height:34px; border-radius:10px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:16px; cursor:pointer; flex-shrink:0;
+            transition:background .15s, color .15s;
+        }
+        .settings-btn:active { background:rgba(74,144,217,.12); color:var(--blue); }
+
+        /* ── SETTINGS MODAL ── */
+        .modal-overlay {
+            position:fixed; inset:0; background:rgba(0,0,0,.7);
+            backdrop-filter:blur(6px); z-index:2000;
+            display:flex; align-items:flex-end; justify-content:center;
+            opacity:0; pointer-events:none; transition:opacity .2s;
+        }
+        .modal-overlay.open { opacity:1; pointer-events:all; }
+        .modal {
+            background:var(--bg2); border:1px solid var(--border);
+            border-radius:20px 20px 0 0; width:100%; max-width:540px;
+            padding:20px 20px 36px;
+            transform:translateY(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+        }
+        .modal-overlay.open .modal { transform:translateY(0); }
+        .modal-handle {
+            width:36px; height:4px; background:var(--mute);
+            border-radius:2px; margin:0 auto 18px;
+        }
+        .modal-title { font-size:13px; font-weight:800; color:#fff; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:20px; }
+        .setting-row {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:12px 0; border-bottom:1px solid rgba(255,255,255,.05);
+        }
+        .setting-row:last-child { border-bottom:none; }
+        .setting-label { font-size:13px; color:var(--text); font-weight:500; }
+        .setting-sub   { font-size:11px; color:var(--mute); margin-top:2px; }
+        /* Toggle switch */
+        .toggle { position:relative; width:44px; height:26px; flex-shrink:0; }
+        .toggle input { opacity:0; width:0; height:0; }
+        .toggle-track {
+            position:absolute; inset:0; background:var(--mute);
+            border-radius:13px; cursor:pointer; transition:background .2s;
+        }
+        .toggle input:checked + .toggle-track { background:var(--blue); }
+        .toggle-thumb {
+            position:absolute; top:3px; left:3px;
+            width:20px; height:20px; background:#fff;
+            border-radius:50%; transition:transform .2s; pointer-events:none;
+        }
+        .toggle input:checked ~ .toggle-thumb { transform:translateX(18px); }
+        /* Checkbox rows */
+        .check-group { padding:4px 0 8px; }
+        .check-row {
+            display:flex; align-items:center; gap:10px;
+            padding:8px 0; cursor:pointer;
+        }
+        .check-box {
+            width:20px; height:20px; border-radius:6px;
+            border:2px solid var(--mute); background:transparent;
+            display:flex; align-items:center; justify-content:center;
+            flex-shrink:0; transition:background .15s, border-color .15s;
+        }
+        .check-box.checked { background:var(--blue); border-color:var(--blue); }
+        .check-box.checked::after { content:'✓'; color:#fff; font-size:12px; font-weight:800; }
+        .check-lbl { font-size:13px; }
+        .check-em  { color:#cc44ff; font-weight:700; }
+        .check-tw  { color:var(--red); font-weight:700; }
+        .check-wch { color:#ffb300; font-weight:700; }
+        .check-sev { color:var(--yellow); font-weight:600; }
+        /* Distance slider */
+        .dist-row { display:flex; align-items:center; gap:12px; width:100%; }
+        .dist-slider {
+            flex:1; -webkit-appearance:none; appearance:none;
+            height:4px; background:var(--mute); border-radius:2px; outline:none;
+        }
+        .dist-slider::-webkit-slider-thumb {
+            -webkit-appearance:none; width:22px; height:22px;
+            background:var(--blue); border-radius:50%; cursor:pointer;
+            border:3px solid #fff; box-shadow:0 0 8px rgba(74,144,217,.5);
+        }
+        .dist-val { font-size:14px; font-weight:800; color:var(--blue); min-width:52px; text-align:right; }
+        /* Request notif btn */
+        .notif-btn {
+            width:100%; padding:11px; background:rgba(74,144,217,.08);
+            border:1px solid rgba(74,144,217,.22); color:var(--blue);
+            border-radius:10px; font-size:13px; font-weight:600;
+            cursor:pointer; font-family:inherit; transition:background .15s;
+            margin-top:4px;
+        }
+        .notif-btn:active { background:rgba(74,144,217,.18); }
+        .notif-status { font-size:11px; color:var(--mute); text-align:center; margin-top:6px; }
+
         /* ── PULSE RING (user dot) ── */
         @keyframes pulse-ring {
             0%   { transform:scale(1);   opacity:.5; }
@@ -293,9 +386,12 @@
             </div>
         </div>
     </div>
-    <div class="header-right">
-        <div class="alert-badge clear" id="alert-badge">All Clear</div>
-        <div class="clock" id="clock">—</div>
+    <div class="header-right" style="display:flex;align-items:center;gap:10px;">
+        <button class="settings-btn" onclick="openSettings()" title="Alert Settings">⚙</button>
+        <div>
+            <div class="alert-badge clear" id="alert-badge">All Clear</div>
+            <div class="clock" id="clock">—</div>
+        </div>
     </div>
 </div>
 
@@ -529,6 +625,81 @@
 <div class="footer">
     Last updated: <span id="last-updated">—</span><br>
     <span>Data: NWS · Open-Meteo · RainViewer · SPC</span>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeSettingsOnBg(event)">
+    <div class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title">Alert Settings</div>
+
+        <!-- Browser Notifications -->
+        <div class="setting-row">
+            <div>
+                <div class="setting-label">Browser Notifications</div>
+                <div class="setting-sub">Pop-up alerts even when tab is in background</div>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" id="toggle-notif" onchange="toggleSetting('notificationsEnabled',this.checked)">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+            </label>
+        </div>
+        <button class="notif-btn" id="notif-perm-btn" onclick="requestNotifPermission()">Enable Browser Notifications</button>
+        <div class="notif-status" id="notif-perm-status"></div>
+
+        <!-- Sound -->
+        <div class="setting-row" style="margin-top:10px;">
+            <div>
+                <div class="setting-label">Sound Alerts</div>
+                <div class="setting-sub">Audio alarm when new alerts are detected</div>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" id="toggle-sound" onchange="toggleSetting('soundEnabled',this.checked)">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+            </label>
+        </div>
+
+        <!-- Alert Types -->
+        <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:0;">
+            <div class="setting-label" style="margin-bottom:4px;">Notify me for</div>
+            <div class="check-group" style="width:100%;">
+                <div class="check-row" onclick="toggleType('Tornado Emergency')">
+                    <div class="check-box" id="chk-te"></div>
+                    <span class="check-lbl check-em">⚡ Tornado Emergency</span>
+                </div>
+                <div class="check-row" onclick="toggleType('Tornado Warning')">
+                    <div class="check-box" id="chk-tw"></div>
+                    <span class="check-lbl check-tw">🌪 Tornado Warning</span>
+                </div>
+                <div class="check-row" onclick="toggleType('Tornado Watch')">
+                    <div class="check-box" id="chk-wch"></div>
+                    <span class="check-lbl check-wch">⚠ Tornado Watch</span>
+                </div>
+                <div class="check-row" onclick="toggleType('Severe Thunderstorm Warning')">
+                    <div class="check-box" id="chk-stw"></div>
+                    <span class="check-lbl check-sev">⛈ Severe Thunderstorm Warning</span>
+                </div>
+                <div class="check-row" onclick="toggleType('Severe Thunderstorm Watch')">
+                    <div class="check-box" id="chk-stwch"></div>
+                    <span class="check-lbl check-sev">⛅ Severe Thunderstorm Watch</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distance -->
+        <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+            <div class="setting-label">Alert Distance Threshold</div>
+            <div class="dist-row">
+                <input type="range" class="dist-slider" id="dist-slider"
+                    min="25" max="300" step="25"
+                    oninput="updateDistLabel(this.value)" onchange="saveDist(this.value)">
+                <span class="dist-val" id="dist-val">100 mi</span>
+            </div>
+            <div class="setting-sub">Only alert if the event is within this distance</div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -791,7 +962,7 @@ async function fetchAlerts() {
             const dist = haversine(HOME.lat,HOME.lon,c.lat,c.lon);
             if (dist > RADIUS_MI) continue;
             const dir = bearingDir(HOME.lat,HOME.lon,c.lat,c.lon);
-            activeAlerts.push({ event:p.event, area:p.areaDesc, headline:p.headline||p.event, description:p.description||'', dist:Math.round(dist), dir, expires:p.expires, c, priority:PRIORITY[p.event]||0 });
+            activeAlerts.push({ id:feat.id||p.id||`${p.event}-${p.areaDesc}`, event:p.event, area:p.areaDesc, headline:p.headline||p.event, description:p.description||'', dist:Math.round(dist), dir, expires:p.expires, c, priority:PRIORITY[p.event]||0 });
             const geom = feat.geometry;
             if (geom && (geom.type==='Polygon'||geom.type==='MultiPolygon')) {
                 const col = COLOR[p.event]||'#888';
@@ -803,6 +974,7 @@ async function fetchAlerts() {
         }
         activeAlerts.sort((a,b) => b.priority-a.priority || a.dist-b.dist);
 
+        checkForNewAlerts(activeAlerts);
         renderBanner(); renderAlerts(); renderPos(); renderChaseDay();
 
         const badge = document.getElementById('alert-badge');
@@ -1023,8 +1195,196 @@ function updateClock() {
 }
 
 // ================================================================
+// ALERT NOTIFICATIONS & SETTINGS
+// ================================================================
+let seenAlertIds = new Set();
+
+const DEFAULT_SETTINGS = {
+    notificationsEnabled: false,
+    soundEnabled: true,
+    alertTypes: {
+        'Tornado Emergency': true,
+        'Tornado Warning': true,
+        'Tornado Watch': true,
+        'Severe Thunderstorm Warning': false,
+        'Severe Thunderstorm Watch': false
+    },
+    maxDistanceMi: 100
+};
+
+let alertSettings = { ...DEFAULT_SETTINGS };
+
+function loadAlertSettings() {
+    try {
+        const saved = localStorage.getItem('stormHQAlertSettings');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            alertSettings = { ...DEFAULT_SETTINGS, ...parsed };
+            alertSettings.alertTypes = { ...DEFAULT_SETTINGS.alertTypes, ...(parsed.alertTypes||{}) };
+        }
+    } catch(e) {}
+}
+
+function saveAlertSettings() {
+    localStorage.setItem('stormHQAlertSettings', JSON.stringify(alertSettings));
+}
+
+function syncSettingsUI() {
+    document.getElementById('toggle-notif').checked = alertSettings.notificationsEnabled;
+    document.getElementById('toggle-sound').checked = alertSettings.soundEnabled;
+    document.getElementById('dist-slider').value   = alertSettings.maxDistanceMi;
+    document.getElementById('dist-val').textContent = alertSettings.maxDistanceMi + ' mi';
+    const map = {
+        'Tornado Emergency': 'chk-te',
+        'Tornado Warning':   'chk-tw',
+        'Tornado Watch':     'chk-wch',
+        'Severe Thunderstorm Warning': 'chk-stw',
+        'Severe Thunderstorm Watch':   'chk-stwch'
+    };
+    for (const [type, id] of Object.entries(map)) {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('checked', !!alertSettings.alertTypes[type]);
+    }
+    updateNotifPermStatus();
+}
+
+function updateNotifPermStatus() {
+    const status = document.getElementById('notif-perm-status');
+    const btn    = document.getElementById('notif-perm-btn');
+    if (!('Notification' in window)) {
+        status.textContent = 'Browser notifications not supported on this device.';
+        btn.style.display = 'none'; return;
+    }
+    const perm = Notification.permission;
+    if (perm === 'granted') {
+        btn.textContent = '✓ Notifications Enabled';
+        btn.style.background = 'rgba(0,200,83,.08)';
+        btn.style.borderColor = 'rgba(0,200,83,.25)';
+        btn.style.color = 'var(--green)';
+        status.textContent = '';
+    } else if (perm === 'denied') {
+        btn.style.display = 'none';
+        status.textContent = 'Notifications blocked — enable in your browser settings.';
+    } else {
+        btn.textContent = 'Enable Browser Notifications';
+        btn.style = '';
+        status.textContent = 'Tap to allow — your browser will ask permission.';
+    }
+}
+
+function openSettings() {
+    syncSettingsUI();
+    document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeSettings() {
+    document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function closeSettingsOnBg(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeSettings();
+}
+
+function toggleSetting(key, val) {
+    alertSettings[key] = val;
+    saveAlertSettings();
+}
+
+function toggleType(type) {
+    alertSettings.alertTypes[type] = !alertSettings.alertTypes[type];
+    saveAlertSettings();
+    syncSettingsUI();
+}
+
+function updateDistLabel(val) {
+    document.getElementById('dist-val').textContent = val + ' mi';
+}
+
+function saveDist(val) {
+    alertSettings.maxDistanceMi = parseInt(val);
+    saveAlertSettings();
+}
+
+async function requestNotifPermission() {
+    if (!('Notification' in window)) return;
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+        alertSettings.notificationsEnabled = true;
+        document.getElementById('toggle-notif').checked = true;
+        saveAlertSettings();
+    }
+    updateNotifPermStatus();
+}
+
+// ── SOUND ──
+function playAlertSound(type) {
+    if (!alertSettings.soundEnabled) return;
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const isTornado = type.includes('Tornado');
+        const isEmergency = type === 'Tornado Emergency';
+        const pulses = isEmergency ? [880, 660, 880, 660, 880] : isTornado ? [660, 440, 660] : [440, 330];
+        let t = ctx.currentTime + 0.05;
+        pulses.forEach(freq => {
+            const osc  = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.type = isEmergency ? 'sawtooth' : 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.25, t + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+            osc.start(t); osc.stop(t + 0.4);
+            t += 0.42;
+        });
+    } catch(e) { console.warn('Audio error:', e); }
+}
+
+// ── BROWSER NOTIFICATION ──
+function sendBrowserNotif(alert) {
+    if (!alertSettings.notificationsEnabled) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const icons = { 'Tornado Emergency':'⚡', 'Tornado Warning':'🌪', 'Tornado Watch':'⚠', 'Severe Thunderstorm Warning':'⛈', 'Severe Thunderstorm Watch':'⛅' };
+    const title = `${icons[alert.event]||'⚠'} ${alert.event}`;
+    const body  = `${alert.dist} mi ${alert.dir} — ${alert.area.split(';')[0].trim()}`;
+    try {
+        const n = new Notification(title, { body, tag: alert.id, requireInteraction: alert.event.includes('Emergency') });
+        n.onclick = () => { window.focus(); n.close(); };
+    } catch(e) {}
+}
+
+// ── CHECK FOR NEW ALERTS ──
+function checkForNewAlerts(alerts) {
+    const newOnes = alerts.filter(a => {
+        if (seenAlertIds.has(a.id)) return false;
+        if (!alertSettings.alertTypes[a.event]) return false;
+        if (a.dist > alertSettings.maxDistanceMi) return false;
+        return true;
+    });
+
+    if (!newOnes.length) {
+        // Mark all current as seen
+        alerts.forEach(a => seenAlertIds.add(a.id));
+        return;
+    }
+
+    // Sort by priority — highest first
+    newOnes.sort((a,b) => b.priority - a.priority);
+
+    // Play sound for most severe new alert
+    playAlertSound(newOnes[0].event);
+
+    // Send browser notifications
+    newOnes.forEach(a => sendBrowserNotif(a));
+
+    // Mark all as seen
+    alerts.forEach(a => seenAlertIds.add(a.id));
+}
+
+// ================================================================
 // BOOT
 // ================================================================
+loadAlertSettings();
 updateClock();
 setInterval(updateClock, 15000);
 setInterval(() => { fetchAlerts(); fetchConditions(); }, 2*60*1000);
