@@ -222,6 +222,22 @@
             text-align: center;
             padding: 10px;
         }
+
+        /* ---- CHASER CARDS ---- */
+        .chaser-card {
+            background: #10101a;
+            border-radius: 8px;
+            padding: 13px;
+            margin-bottom: 8px;
+            border-left: 4px solid #1e3a5f;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .chaser-card:active { background: #1a1a2e; }
+        .chaser-handle { font-size: 12px; color: #4a90d9; font-weight: 700; margin-bottom: 2px; }
+        .chaser-name   { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .chaser-desc   { font-size: 12px; color: #888; line-height: 1.5; margin-bottom: 6px; }
+        .chaser-open   { font-size: 11px; color: #4a90d9; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -306,56 +322,42 @@
 
 <!-- CHASER FEEDS -->
 <div class="section">
-    <div class="section-title">Chaser Feeds on X</div>
+    <div class="section-title">Top Chasers on X</div>
+    <p style="font-size:12px; color:#555; margin-bottom:10px;">X no longer allows free embedded feeds. Tap any chaser below to open their profile directly.</p>
 
-    <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab(this,'tab-reed')">Reed Timmer</button>
-        <button class="tab-btn"        onclick="switchTab(this,'tab-base')">Basehunters</button>
-        <button class="tab-btn"        onclick="switchTab(this,'tab-hank')">Pecos Hank</button>
-        <button class="tab-btn"        onclick="switchTab(this,'tab-nws')">NWS StL</button>
+    <div class="chaser-card" onclick="window.open('https://x.com/ReedTimmerAccu','_blank')">
+        <div class="chaser-handle">@ReedTimmerAccu</div>
+        <div class="chaser-name">Reed Timmer</div>
+        <div class="chaser-desc">Most aggressive active chaser. Posts constantly during events — real-time video and position updates.</div>
+        <div class="chaser-open">Open on X →</div>
     </div>
 
-    <div class="twitter-wrap">
-        <div id="tab-reed" class="tab-panel active">
-            <a class="twitter-timeline"
-               data-theme="dark"
-               data-height="380"
-               data-chrome="nofooter noheader noborders"
-               href="https://twitter.com/ReedTimmerAccu">
-            </a>
-        </div>
-        <div id="tab-base" class="tab-panel">
-            <a class="twitter-timeline"
-               data-theme="dark"
-               data-height="380"
-               data-chrome="nofooter noheader noborders"
-               href="https://twitter.com/BasehuntersChasing">
-            </a>
-        </div>
-        <div id="tab-hank" class="tab-panel">
-            <a class="twitter-timeline"
-               data-theme="dark"
-               data-height="380"
-               data-chrome="nofooter noheader noborders"
-               href="https://twitter.com/pecos_hank">
-            </a>
-        </div>
-        <div id="tab-nws" class="tab-panel">
-            <a class="twitter-timeline"
-               data-theme="dark"
-               data-height="380"
-               data-chrome="nofooter noheader noborders"
-               href="https://twitter.com/NWSStLouis">
-            </a>
-        </div>
+    <div class="chaser-card" onclick="window.open('https://x.com/BasehuntersChasing','_blank')">
+        <div class="chaser-handle">@BasehuntersChasing</div>
+        <div class="chaser-name">Basehunters</div>
+        <div class="chaser-desc">Professional team. Excellent positioning info and live intercept footage.</div>
+        <div class="chaser-open">Open on X →</div>
     </div>
 
-    <div class="x-fallback" id="x-fallback" style="display:none;">
-        X embeds blocked. Open directly:
-        <a href="https://twitter.com/ReedTimmerAccu" target="_blank">Reed Timmer</a> ·
-        <a href="https://twitter.com/BasehuntersChasing" target="_blank">Basehunters</a> ·
-        <a href="https://twitter.com/pecos_hank" target="_blank">Pecos Hank</a> ·
-        <a href="https://twitter.com/NWSStLouis" target="_blank">NWS St. Louis</a>
+    <div class="chaser-card" onclick="window.open('https://x.com/pecos_hank','_blank')">
+        <div class="chaser-handle">@pecos_hank</div>
+        <div class="chaser-name">Pecos Hank</div>
+        <div class="chaser-desc">Incredible video quality. Very consistent field updates during chase days.</div>
+        <div class="chaser-open">Open on X →</div>
+    </div>
+
+    <div class="chaser-card" onclick="window.open('https://x.com/NWSStLouis','_blank')">
+        <div class="chaser-handle">@NWSStLouis</div>
+        <div class="chaser-name">NWS St. Louis</div>
+        <div class="chaser-desc">Your official local office. Posts tornado warnings for your area first.</div>
+        <div class="chaser-open">Open on X →</div>
+    </div>
+
+    <div class="chaser-card" onclick="window.open('https://x.com/kelleywx','_blank')">
+        <div class="chaser-handle">@kelleywx</div>
+        <div class="chaser-name">Kelley Williamson</div>
+        <div class="chaser-desc">Best for morning forecast analysis — tells you where to be before the day starts.</div>
+        <div class="chaser-open">Open on X →</div>
     </div>
 </div>
 
@@ -369,7 +371,7 @@
         <a href="https://radar.weather.gov/station/KLSX/standard" target="_blank" class="quick-link">
             <span class="quick-link-icon">📡</span>NWS Radar
         </a>
-        <a href="https://www.spotternetwork.org/map" target="_blank" class="quick-link">
+        <a href="https://www.spotternetwork.org" target="_blank" class="quick-link">
             <span class="quick-link-icon">📍</span>Spotter Network
         </a>
         <a href="https://alerts.weather.gov" target="_blank" class="quick-link">
@@ -378,8 +380,8 @@
         <a href="https://www.spc.noaa.gov/products/watch/" target="_blank" class="quick-link">
             <span class="quick-link-icon">👁</span>Active Watches
         </a>
-        <a href="https://mesonet.agron.iastate.edu/iembot/" target="_blank" class="quick-link">
-            <span class="quick-link-icon">🤖</span>IEM Bot
+        <a href="https://mesonet.agron.iastate.edu/radar/app/" target="_blank" class="quick-link">
+            <span class="quick-link-icon">🌩</span>IEM Radar
         </a>
     </div>
 </div>
@@ -389,8 +391,6 @@
 <!-- LEAFLET -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- TWITTER / X WIDGET -->
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 <script>
 // ================================================================
@@ -725,23 +725,6 @@ function updateClock() {
     document.getElementById('clock').textContent =
         new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
-
-// ================================================================
-// TABS
-// ================================================================
-function switchTab(btn, panelId) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(panelId).classList.add('active');
-    if (window.twttr?.widgets) window.twttr.widgets.load();
-}
-
-// Show fallback links if X embeds fail to load after 8s
-setTimeout(() => {
-    const iframe = document.querySelector('iframe[data-tweet-id], iframe[src*="twitter"]');
-    if (!iframe) document.getElementById('x-fallback').style.display = 'block';
-}, 8000);
 
 // ================================================================
 // INIT
