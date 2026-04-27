@@ -245,7 +245,7 @@ function initAtmosphere(){
 // ROOT APP
 // ─────────────────────────────────────────────
 function App(){
-    const [tab,setTab]         = useState('map');
+    const [tab,setTab]         = useState('dash');
     const [prevTab,setPrevTab] = useState(null);
     const [loc,setLoc]         = useState({lat:38.7881,lon:-90.4974});
     const [locName,setLocName] = useState('St. Charles, MO');
@@ -656,6 +656,54 @@ function MapOverlayUI({loc,locName,conditions,alerts,alertLevel,lvl,radarFrames,
             rgba(255,149,0,.7) 100%)`
     };
 
+    // ── FULLSCREEN MAP TAB — minimal overlay, fully interactive map ──
+    if(tab==='map'){
+        return(
+            <>
+            {/* Floating nav pill — only UI in fullscreen map mode */}
+            <div style={{margin:'14px 12px 0',display:'flex',justifyContent:'center',pointerEvents:'all'}}>
+                <div style={{
+                    display:'inline-flex',gap:3,
+                    background:'rgba(4,9,26,.82)',
+                    backdropFilter:'blur(24px)',WebkitBackdropFilter:'blur(24px)',
+                    border:'1px solid rgba(100,148,255,.13)',
+                    borderRadius:20,padding:'3px',
+                    boxShadow:'0 4px 24px rgba(0,0,0,.5)'
+                }}>
+                    {[['dash','Dash'],['map','Map'],['alerts','Alerts'],['chase','Chase'],['feed','Feed'],['more','More']].map(([id,label])=>(
+                        <button key={id} onClick={()=>setTab(id)} style={{
+                            padding:'6px 15px',borderRadius:16,fontSize:12,fontWeight:700,cursor:'pointer',
+                            background:tab===id?'rgba(77,148,255,.2)':'transparent',
+                            border:tab===id?'1px solid rgba(77,148,255,.35)':'1px solid transparent',
+                            color:tab===id?'#4d94ff':'#3a4a6a',
+                            fontFamily:'inherit',position:'relative',transition:'all .15s'
+                        }}>
+                            {label}
+                            {id==='alerts'&&alerts.length>0&&(
+                                <span style={{
+                                    position:'absolute',top:2,right:2,
+                                    minWidth:14,height:14,borderRadius:7,padding:'0 2px',
+                                    background:lvl.color,fontSize:8,fontWeight:800,color:'#fff',
+                                    display:'inline-flex',alignItems:'center',justifyContent:'center',
+                                    boxShadow:`0 0 6px ${lvl.color}80`
+                                }}>{alerts.length>9?'9+':alerts.length}</span>
+                            )}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            {/* transparent spacer — no pointer events so map stays interactive */}
+            <div style={{flex:1,pointerEvents:'none'}}/>
+            {/* Zoom + center buttons */}
+            <div style={{position:'absolute',bottom:24,left:16,pointerEvents:'all',display:'flex',flexDirection:'column',gap:8}}>
+                <button onClick={()=>zoom(1)} style={{width:44,height:44,borderRadius:14,background:'rgba(4,9,26,.88)',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(100,148,255,.22)',color:'#4d94ff',fontSize:22,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 20px rgba(0,0,0,.4)',fontFamily:'inherit'}}>+</button>
+                <button onClick={()=>zoom(-1)} style={{width:44,height:44,borderRadius:14,background:'rgba(4,9,26,.88)',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(100,148,255,.22)',color:'#4d94ff',fontSize:22,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 20px rgba(0,0,0,.4)',fontFamily:'inherit'}}>−</button>
+                <button onClick={centerOnMe} style={{width:44,height:44,borderRadius:'50%',background:'rgba(4,9,26,.88)',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(100,148,255,.22)',color:'#4d94ff',fontSize:18,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 20px rgba(0,0,0,.4)'}}>📍</button>
+            </div>
+            </>
+        );
+    }
+
     return(
         <>
         {/* ── HEADER GLASS PILL ── */}
@@ -738,7 +786,7 @@ function MapOverlayUI({loc,locName,conditions,alerts,alertLevel,lvl,radarFrames,
                 borderRadius:20,padding:'3px',
                 boxShadow:'0 4px 24px rgba(0,0,0,.4)'
             }}>
-                {[['map','Map'],['alerts','Alerts'],['chase','Chase'],['feed','Feed'],['more','More']].map(([id,label])=>(
+                {[['dash','Dash'],['map','Map'],['alerts','Alerts'],['chase','Chase'],['feed','Feed'],['more','More']].map(([id,label])=>(
                     <button key={id} onClick={()=>setTab(id)} style={{
                         padding:'6px 15px',borderRadius:16,fontSize:12,fontWeight:700,cursor:'pointer',
                         background:tab===id?'rgba(77,148,255,.2)':'transparent',
@@ -835,8 +883,8 @@ function MapOverlayUI({loc,locName,conditions,alerts,alertLevel,lvl,radarFrames,
         {/* spacer — must be pointer-events:none so map underneath stays interactive */}
         <div style={{flex:1,pointerEvents:'none'}}/>
 
-        {/* ── ZOOM + CENTER BUTTONS (map tab only) ── */}
-        {tab==='map' && (
+        {/* ── ZOOM + CENTER BUTTONS (dash tab only) ── */}
+        {tab==='dash' && (
         <div style={{position:'absolute',bottom:'calc(110px + 16px)',left:16,pointerEvents:'all',display:'flex',flexDirection:'column',gap:8}}>
             <button onClick={()=>zoom(1)} style={{width:44,height:44,borderRadius:14,background:'rgba(4,9,26,.88)',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(100,148,255,.22)',color:'#4d94ff',fontSize:22,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 20px rgba(0,0,0,.4)',fontFamily:'inherit'}}>+</button>
             <button onClick={()=>zoom(-1)} style={{width:44,height:44,borderRadius:14,background:'rgba(4,9,26,.88)',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(100,148,255,.22)',color:'#4d94ff',fontSize:22,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 20px rgba(0,0,0,.4)',fontFamily:'inherit'}}>−</button>
@@ -844,8 +892,8 @@ function MapOverlayUI({loc,locName,conditions,alerts,alertLevel,lvl,radarFrames,
         </div>
         )}
 
-        {/* ── RADAR TIME SCRUBBER (map tab only) ── */}
-        {tab==='map' && radarFrames.length>0 && (
+        {/* ── RADAR TIME SCRUBBER (dash tab only) ── */}
+        {tab==='dash' && radarFrames.length>0 && (
             <div style={{
                 margin:'0 12px 16px',
                 borderRadius:20,padding:'12px 16px 14px',
