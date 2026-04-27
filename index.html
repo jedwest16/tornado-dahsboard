@@ -487,7 +487,7 @@ function MapLayer({loc,alerts,radarFrames,radarIdx,mapStyle}){
 
     useEffect(()=>{
         if(mapRef.current)return;
-        const map=L.map('map',{center:[loc.lat,loc.lon],zoom:7,zoomControl:false,attributionControl:true});
+        const map=L.map('map',{center:[loc.lat,loc.lon],zoom:7,zoomControl:false,attributionControl:true,dragging:true,scrollWheelZoom:true,touchZoom:true,doubleClickZoom:true,boxZoom:false});
         const street = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
             {attribution:'© OpenStreetMap © CARTO',maxZoom:19});
         const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -555,17 +555,10 @@ function MapLayer({loc,alerts,radarFrames,radarIdx,mapStyle}){
         alerts.forEach(a=>{
             if(!a.geometry||(a.geometry.type!=='Polygon'&&a.geometry.type!=='MultiPolygon'))return;
             const col=ALERT_COLOR[a.event]||'#888';
-            const lyr=L.geoJSON({type:'Feature',geometry:a.geometry},{
-                style:{color:col,weight:2.5,fillOpacity:.18,fillColor:col},
-                onEachFeature:(_,layer)=>{
-                    layer.on('mouseover',function(){this.setStyle({fillOpacity:.32,weight:3.5});});
-                    layer.on('mouseout',function(){this.setStyle({fillOpacity:.18,weight:2.5});});
-                }
-            });
             const expires=a.expires?new Date(a.expires).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):null;
             const desc=a.description?(a.description.replace(/\n/g,' ').slice(0,320)+(a.description.length>320?'…':'')):null;
             const area=a.area.split(';')[0].trim();
-            lyr.bindPopup(`
+            const popupHtml=`
                 <div style="min-width:230px;max-width:290px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5;">
                     <div style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;background:${col}22;color:${col};margin-bottom:10px;">${a.event}</div>
                     <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px;">${area}</div>
@@ -575,8 +568,16 @@ function MapLayer({loc,alerts,radarFrames,radarIdx,mapStyle}){
                         ${expires?`<div><div style="font-size:9px;color:#3a4a6a;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">EXPIRES</div><div style="font-size:13px;font-weight:700;color:#ff9500;">${expires}</div></div>`:''}
                     </div>
                     ${desc?`<div style="font-size:10px;color:#8896b8;line-height:1.6;margin-top:2px;">${desc}</div>`:''}
-                </div>
-            `,{maxWidth:300,className:'storm-popup'});
+                </div>`;
+            const lyr=L.geoJSON({type:'Feature',geometry:a.geometry},{
+                style:{color:col,weight:2.5,fillOpacity:.18,fillColor:col},
+                onEachFeature:(_,layer)=>{
+                    // Bind popup per-feature so click works reliably on each polygon
+                    layer.bindPopup(popupHtml,{maxWidth:300});
+                    layer.on('mouseover',function(){this.setStyle({fillOpacity:.32,weight:3.5});});
+                    layer.on('mouseout',function(){this.setStyle({fillOpacity:.18,weight:2.5});});
+                }
+            });
             lyr.addTo(map);
             alertLayersRef.current.push(lyr);
         });
